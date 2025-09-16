@@ -8,3 +8,8 @@ dependencies = [
     "django==5.0",
     "pillow>=11.3.0",
 ]
+
+[dependency-groups]
+dev = [
+    "django-stubs[compatible]>=5.2.5",
+]
