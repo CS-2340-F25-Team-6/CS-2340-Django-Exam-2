@@ -10,6 +10,8 @@ class Order(models.Model):
     total = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    country = models.CharField(max_length=50, blank=True, null=False)
     
     def __str__(self):
         return str(self.id) + ' - ' + self.user.username
