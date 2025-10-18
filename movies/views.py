@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from accounts.models import UserProfile
-from .models import Movie, Review
+from .models import Movie, Review, Rating
+from django.http import HttpResponseBadRequest
+
 
 
 # ------------------------------
@@ -29,11 +31,15 @@ def index(request):
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
+    user_rating = None
+    if request.user.is_authenticated:
+        user_rating = Rating.objects.filter(user=request.user, movie=movie).first()
 
     template_data = {
         'title': movie.name,
         'movie': movie,
         'reviews': reviews,
+        'user_rating': user_rating.value if user_rating else 0,
     }
 
     return render(request, 'movies/show.html', {
@@ -122,3 +128,20 @@ def trending_movies(request):
     }
 
     return render(request, "movies/trending.html", {"template_data": template_data})
+
+@login_required
+def rate_movie(request, id):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid method")
+    movie = get_object_or_404(Movie, pk=id)
+    try:
+        value = int(request.POST.get("rating", "0"))
+    except ValueError:
+        return HttpResponseBadRequest("Invalid rating")
+    if value < 1 or value > 5:
+        return HttpResponseBadRequest("Rating must be 1..5")
+    rating, _ = Rating.objects.get_or_create(user=request.user, movie=movie, defaults={"value": value})
+    if rating.value != value:
+        rating.value = value
+        rating.save(update_fields=["value", "updated_at"])
+    return redirect("movies.show", id=movie.id)
