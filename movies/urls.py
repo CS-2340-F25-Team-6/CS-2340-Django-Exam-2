@@ -11,4 +11,5 @@ urlpatterns = [
 
     #  New route for trending movies
     path('trending/', views.trending_movies, name='movies.trending'),
+    
 ]
