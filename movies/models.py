@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models import Avg
 
 # Create your models here.
 class Movie(models.Model):
@@ -9,8 +10,13 @@ class Movie(models.Model):
     price = models.IntegerField()
     description = models.TextField()
     image = models.ImageField(upload_to='movie_images/')
+
     def __str__(self):
         return str(self.id) + ' - ' + self.name
+    
+    def rate_movie(self):
+        avg_rating = self.ratings.aggregate(avg_value=Avg('value'))['avg_value']
+        return avg_rating if avg_rating is not None else 0.0
     
 class Review(models.Model):
     id = models.AutoField(primary_key=True)
