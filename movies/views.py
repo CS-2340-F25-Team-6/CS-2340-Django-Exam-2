@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest
 from .models import Movie, Review, Rating
 from accounts.models import UserProfile
 from cart.models import Item  # ✅ needed for region-based filtering
+from django.db.models import Sum
 
 
 # ------------------------------
@@ -130,8 +131,11 @@ def trending_movies(request):
     # ✅ Aggregate trending movies (based on item count)
     movies = (
         Movie.objects.filter(item__in=nearby_orders)
-        .annotate(num_reviews=Count("review"))
-        .order_by("-num_reviews")[:10]
+        .annotate(
+            purchase_count=Sum('item__quantity'),
+            num_reviews=Count("review")
+        )
+        .order_by("-purchase_count")[:10]
     )
 
     template_data = {
