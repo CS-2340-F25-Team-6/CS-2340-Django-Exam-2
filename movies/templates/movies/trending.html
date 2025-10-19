@@ -20,7 +20,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ movie.name }}</h5>
                             <p class="card-text text-muted mb-1">
-                                Purchased {{ movie.num_reviews|default:0 }} time{{ movie.num_reviews|pluralize }}
+                                Purchased {{ movie.purchase_count|default:0 }} time{{ movie.purchase_count|pluralize }}
                             </p>
                             <a href="{% url 'movies.show' movie.id %}" class="btn btn-primary btn-sm mt-2">View Movie</a>
                         </div>
