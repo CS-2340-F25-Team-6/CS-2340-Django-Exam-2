@@ -25,6 +25,71 @@
             </div>
           </form>
         </p>
+        <!-- User rating -->
+        <h2>Your rating</h2>
+        <hr />
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'movies.rate' id=template_data.movie.id %}" id="rating-form">
+          {% csrf_token %}
+          <input type="hidden" name="rating" id="rating-input" value="{{ template_data.user_rating|default:0 }}">
+          <div id="stars" class="d-inline-block" aria-label="Rate from 1 to 5">
+            {% for i in "12345" %}
+              {% with idx=forloop.counter %}
+              <span class="star fs-3" data-value="{{ idx }}"
+                    role="button"
+                    aria-label="{{ idx }} star"
+                    tabindex="0">
+                &#9733;
+              </span>
+              {% endwith %}
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn bg-dark text-white ms-2">Save</button>
+        </form>
+        {% else %}
+        <div class="text-muted fs-4" aria-hidden="true">
+          &#9733;&#9733;&#9733;&#9733;&#9733;
+        </div>
+        <small>Sign in to rate.</small>
+        {% endif %}
+
+        <style>
+          /* grey by default */
+          .star { cursor: pointer; color: #ddd; }
+          /* selected color */
+          .star.selected { color: #ffc107; } /* Bootstrap's warning/yellow */
+        </style>
+
+        <script>
+          (function() {
+            var stars = Array.from(document.querySelectorAll("#stars .star"));
+            if (!stars.length) return;
+
+            function paint(n) {
+              stars.forEach(function(s, i) {
+                if (i < n) s.classList.add("selected");
+                else s.classList.remove("selected");
+              });
+            }
+
+            // initial from server
+            var current = parseInt(document.getElementById("rating-input").value || "0", 10);
+            paint(current);
+
+            stars.forEach(function(s) {
+              s.addEventListener("click", function() {
+                var v = parseInt(this.dataset.value, 10);
+                document.getElementById("rating-input").value = v;
+                paint(v);
+              });
+              s.addEventListener("keydown", function(e) {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.click(); }
+              });
+            });
+          })();
+        </script>
+
+        <!-- Reviews header stays after rating widget -->
         <h2>Reviews</h2>
         <hr />
         <ul class="list-group">

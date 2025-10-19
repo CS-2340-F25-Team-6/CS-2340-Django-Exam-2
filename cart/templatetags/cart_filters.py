@@ -5,3 +5,7 @@ register = template.Library()
 @register.filter(name='get_quantity')
 def get_cart_quantity(cart, movie_id):
     return cart[str(movie_id)]
+
+@register.filter(name='get_item')
+def get_cart_item(cart, movie_id):
+    return cart[str(movie_id)]

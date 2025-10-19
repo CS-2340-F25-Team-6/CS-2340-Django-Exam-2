@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load cart_filters %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-8 mx-auto mb-3">
+        <h2>Checkout</h2>
+        <hr />
+        
+        <!-- Order Summary -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>Order Summary</h5>
+          </div>
+          <div class="card-body">
+            {% for movie in template_data.movies_in_cart %}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <strong>{{ movie.name }}</strong>
+                <span class="text-muted">(Qty: {{ request.session.cart|get_item:movie.id }})</span>
+              </div>
+              <div>${{ movie.price }}</div>
+            </div>
+            {% endfor %}
+            <hr>
+            <div class="d-flex justify-content-between">
+              <strong>Total: ${{ template_data.cart_total }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Form -->
+        <div class="card">
+          <div class="card-header">
+            <h5>Confirm Your Location</h5>
+            <small class="text-muted">This helps us track movie popularity in your area</small>
+          </div>
+          <div class="card-body">
+            <form method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="{{ template_data.location_form.state.id_for_label }}" class="form-label">State/Province</label>
+                {{ template_data.location_form.state }}
+                {% if template_data.location_form.state.errors %}
+                  <div class="text-danger">{{ template_data.location_form.state.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                <label for="{{ template_data.location_form.country.id_for_label }}" class="form-label">Country</label>
+                {{ template_data.location_form.country }}
+                {% if template_data.location_form.country.errors %}
+                  <div class="text-danger">{{ template_data.location_form.country.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="d-flex justify-content-between">
+                <a href="{% url 'cart.index' %}" class="btn btn-secondary">Back to Cart</a>
+                <button type="submit" class="btn btn-success">Complete Purchase</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

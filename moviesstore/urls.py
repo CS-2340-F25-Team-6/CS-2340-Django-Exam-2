@@ -26,6 +26,7 @@ urlpatterns = [
     path('movies/', include('movies.urls')),
     path('accounts/', include('accounts.urls')),
     path('cart/', include('cart.urls')),
+    path('popularity-map/', include('popularitymap.urls'))
 ]
 
 urlpatterns += static(
