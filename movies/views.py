@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.http import HttpResponseBadRequest
 from .models import Movie, Review, Rating
 from accounts.models import UserProfile
-from cart.models import Item  # ✅ needed for region-based filtering
+from cart.models import Item, Order  # ✅ needed for region-based filtering
 from django.db.models import Sum
 
 
@@ -103,40 +103,87 @@ def delete_review(request, id, review_id):
 
 @login_required
 def trending_movies(request):
-    """
-    Display trending movies based on review activity or purchase data.
-    Now supports filtering by ?state= parameter for integration with
-    the popularity map feature.
-    """
     user = request.user
     profile = getattr(user, "profile", None)
 
-    # ✅ Check for ?state= parameter in URL
     state_param = request.GET.get("state")
 
-    # Determine nearby users/orders based on state or country
     if state_param:
-        nearby_orders = Item.objects.filter(order__state=state_param)
+        filter_state = state_param
         title = f"🎬 Trending Movies in {state_param}"
     elif profile and profile.state:
-        nearby_orders = Item.objects.filter(order__state=profile.state)
+        filter_state = profile.state
         title = "🎬 Trending Movies Near You"
     elif profile and profile.country:
-        nearby_orders = Item.objects.filter(order__country=profile.country)
-        title = "🎬 Trending Movies in Your Country"
+        orders = Order.objects.filter(country=profile.country)
+        movie_counts = {}
+        for order in orders:
+            items = Item.objects.filter(order=order).select_related('movie')
+            for item in items:
+                movie = item.movie
+                if movie not in movie_counts:
+                    movie_counts[movie] = 0
+                movie_counts[movie] += item.quantity
+        
+        sorted_movies = sorted(movie_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        movies = [movie for movie, count in sorted_movies]
+        for movie in movies:
+            movie.purchase_count = movie_counts[movie]
+        
+        template_data = {
+            "title": "🎬 Trending Movies in Your Country",
+            "movies": movies,
+        }
+        return render(request, "movies/trending.html", {"template_data": template_data})
     else:
-        nearby_orders = Item.objects.all()
+        filter_state = None
         title = "🎬 Trending Movies Overall"
 
+    if filter_state:
+        orders = Order.objects.filter(state=filter_state)
+    else:
+        orders = Order.objects.all()
+    
+    movie_counts = {}
+    for order in orders:
+        items = Item.objects.filter(order=order).select_related('movie')
+        for item in items:
+            movie = item.movie
+            if movie not in movie_counts:
+                movie_counts[movie] = 0
+            movie_counts[movie] += item.quantity
+    
+    sorted_movies = sorted(movie_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    movies = [movie for movie, count in sorted_movies]
+    for movie in movies:
+        movie.purchase_count = movie_counts[movie]
+
+    template_data = {
+        "title": title,
+        "movies": movies,
+    }
+
+    return render(request, "movies/trending.html", {"template_data": template_data})
+
     # ✅ Aggregate trending movies (based on item count)
-    movies = (
-        Movie.objects.filter(item__in=nearby_orders)
-        .annotate(
-            purchase_count=Sum('item__quantity'),
-            num_reviews=Count("review")
+    if filter_state:
+        movies = (
+            Movie.objects.filter(item__order__state=filter_state)
+            .annotate(
+                purchase_count=Sum('item__quantity'),
+                num_reviews=Count("review")
+            )
+            .order_by("-purchase_count")[:10]
         )
-        .order_by("-purchase_count")[:10]
-    )
+    else:
+        movies = (
+            Movie.objects.filter(item__isnull=False)
+            .annotate(
+                purchase_count=Sum('item__quantity'),
+                num_reviews=Count("review")
+            )
+            .order_by("-purchase_count")[:10]
+        )
 
     template_data = {
         "title": title,
