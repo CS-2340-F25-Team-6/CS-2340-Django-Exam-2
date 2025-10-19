@@ -21,11 +21,13 @@ def index(request):
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
+    average_rating = movie.rate_movie()
 
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
+    template_data['average_rating'] = average_rating
 
     return render(
         request, 'movies/show.html', {
@@ -39,6 +41,7 @@ def create_review(request, id):
         movie = Movie.objects.get(id=id)
         review = Review()
         review.comment = request.POST['comment']
+        review.rating = int(request.POST.get('rating', 0))
         review.movie = movie
         review.user = request.user
         review.save()
@@ -60,6 +63,7 @@ def edit_review(request, id, review_id):
     elif request.method == 'POST' and request.POST['comment'] != '':
         review = Review.objects.get(id=review_id)
         review.comment = request.POST['comment']
+        review.rating = int(request.POST.get('rating', 0))
         review.save()
         return redirect('movies.show', id=id)
     else:
