@@ -5,6 +5,14 @@
     <div class="row mt-3">
       <div class="col mx-auto mb-3">
         <h2>Edit Review</h2>
+        <h4>{{ template_data.movie.name }}</h4>
+        <p><b>Average Rating:</b> 
+          {% if template_data.average_rating > 0 %}
+            {{ template_data.average_rating|floatformat:1 }}/5.0
+          {% else %}
+            No ratings yet
+          {% endif %}
+        </p>
         <hr />
         <form method="POST">
           {% csrf_token %}
