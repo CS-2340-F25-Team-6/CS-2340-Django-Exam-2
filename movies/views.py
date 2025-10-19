@@ -40,6 +40,7 @@ def show(request, id):
         'movie': movie,
         'reviews': reviews,
         'user_rating': user_rating.value if user_rating else 0,
+        'avg_rating': movie.rate_movie(),
     }
 
     return render(request, 'movies/show.html', {
@@ -71,9 +72,12 @@ def edit_review(request, id, review_id):
         return redirect('movies.show', id=id)
 
     if request.method == 'GET':
+        movie = review.movie
         template_data = {
             'title': 'Edit Review',
             'review': review,
+            'movie': movie,
+            'avg_rating': movie.rate_movie(),
         }
         return render(request, 'movies/edit_review.html', {'template_data': template_data})
     elif request.method == 'POST' and request.POST['comment'] != '':
