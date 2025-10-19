@@ -9,6 +9,13 @@
         <hr />
         <p><b>Description:</b> {{ template_data.movie.description }}</p>
         <p><b>Price:</b> ${{ template_data.movie.price }}</p>
+        <p><b>Average Rating:</b>
+          {% if template_data.average_rating > 0 %}
+            {{ template_data.average_rating }} / 5
+          {% else %}
+            Oh no! The movie hasn't gotten a rating yet. Be the first!
+          {% endif %}
+        </p>
         <p class="card-text">
           <form method="post" action="{% url 'cart.add' id=template_data.movie.id %}">
             <div class="row">
@@ -32,6 +39,9 @@
           <li class="list-group-item pb-3 pt-3">
             <h5 class="card-title">
               Review by {{ review.user.username }}
+              {% if review.rating > 0 %}
+                - Rating: {{ review.rating }} / 5
+              {% endif %}
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">
               {{ review.date }}
@@ -59,6 +69,15 @@
                   <b class="text-start">Create a review</b><br /><br />
                   <form method="POST" action="{% url 'movies.create_review' id=template_data.movie.id %}">
                     {% csrf_token %}
+                    <label for="rating">Rate from 1-5 Stars:</label>
+                    <select name="rating" class="form-control" id="rating" required>
+                      <option value="">Select a rating</option>
+                      <option value="1">1 Star</option>
+                      <option value="2">2 Stars</option>
+                      <option value="3">3 Stars</option>
+                      <option value="4">4 Stars</option>
+                      <option value="5">5 Stars</option>
+                    </select>
                     <p>
                       <label for="comment">Comment:</label>
                       <textarea name="comment" required class="form-control" id="comment"></textarea>
