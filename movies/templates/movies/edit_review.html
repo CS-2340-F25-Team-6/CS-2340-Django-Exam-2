@@ -9,6 +9,15 @@
         <form method="POST">
           {% csrf_token %}
           <p>
+            <label for="rating">Rate from 1-5 Stars:</label>
+            <select name="rating" class="form-control" id="rating" required>
+              <option value="">Select a rating</option>
+              <option value="1" {% if template_data.review.rating == 1 %}selected{% endif %}>1 Star</option>
+              <option value="2" {% if template_data.review.rating == 2 %}selected{% endif %}>2 Stars</option>
+              <option value="3" {% if template_data.review.rating == 3 %}selected{% endif %}>3 Stars</option>
+              <option value="4" {% if template_data.review.rating == 4 %}selected{% endif %}>4 Stars</option>
+              <option value="5" {% if template_data.review.rating == 5 %}selected{% endif %}>5 Stars</option>
+            </select>
             <label for="comment">Comment:</label>
             <textarea name="comment" required class="form-control" id="comment">{{ template_data.review.comment }}</textarea>
           </p>
