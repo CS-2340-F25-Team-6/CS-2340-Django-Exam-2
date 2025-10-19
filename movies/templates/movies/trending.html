@@ -4,14 +4,14 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4">
-        🎬 {{ template_data.title }}
+        {{ template_data.title }}
     </h2>
 
     {% if template_data.movies %}
         <div class="row justify-content-center">
             {% for movie in template_data.movies %}
                 <div class="col-md-3 col-sm-6 mb-4 d-flex">
-                    <div class="card shadow-sm w-100 text-center">
+                    <div class="card shadow-sm pt-4 w-100 text-center d-flex flex-column align-items-center">
                         {% if movie.image and movie.image.url %}
                             <img src="{{ movie.image.url }}" class="card-img-top rounded img-card-200" alt="{{ movie.name }}" style="height: 250px; object-fit: cover;">
                         {% else %}
@@ -20,7 +20,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ movie.name }}</h5>
                             <p class="card-text text-muted mb-1">
-                                Watched {{ movie.num_reviews|default:0 }} time{{ movie.num_reviews|pluralize }} nearby
+                                Purchased {{ movie.num_reviews|default:0 }} time{{ movie.num_reviews|pluralize }}
                             </p>
                             <a href="{% url 'movies.show' movie.id %}" class="btn btn-primary btn-sm mt-2">View Movie</a>
                         </div>
