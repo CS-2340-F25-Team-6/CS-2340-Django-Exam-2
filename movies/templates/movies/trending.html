@@ -3,32 +3,33 @@
 
 {% block content %}
 <div class="container mt-5">
-  <h2 class="text-center mb-4">{{ template_data.title }}</h2>
+    <h2 class="text-center mb-4">
+        {{ template_data.title }}
+    </h2>
 
-  {% if template_data.movies %}
-    <div class="row">
-      {% for movie in template_data.movies %}
-        <div class="col-md-4 mb-4">
-          <div class="card h-100 shadow-sm">
-            {% if movie.image %}
-              <img src="{{ movie.image.url }}" class="card-img-top" alt="{{ movie.name }}">
-            {% else %}
-              <img src="{% static 'images/default_movie.jpg' %}" class="card-img-top" alt="Default movie">
-            {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ movie.name }}</h5>
-              <p class="card-text">{{ movie.description|truncatewords:20 }}</p>
-              <p class="text-muted mb-1">
-                <strong>Reviews:</strong> {{ movie.num_reviews }}
-              </p>
-              <a href="{% url 'movies.show' movie.id %}" class="btn btn-primary btn-sm mt-2">View Movie</a>
-            </div>
-          </div>
+    {% if template_data.movies %}
+        <div class="row justify-content-center">
+            {% for movie in template_data.movies %}
+                <div class="col-md-3 col-sm-6 mb-4 d-flex">
+                    <div class="card shadow-sm pt-4 w-100 text-center d-flex flex-column align-items-center">
+                        {% if movie.image and movie.image.url %}
+                            <img src="{{ movie.image.url }}" class="card-img-top rounded img-card-200" alt="{{ movie.name }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'defaults/movie-placeholder.png' %}" class="card-img-top rounded img-card-200" alt="No image available" style="height: 250px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie.name }}</h5>
+                            <p class="card-text text-muted mb-1">
+                                Purchased {{ movie.num_reviews|default:0 }} time{{ movie.num_reviews|pluralize }}
+                            </p>
+                            <a href="{% url 'movies.show' movie.id %}" class="btn btn-primary btn-sm mt-2">View Movie</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="text-center">No trending movies found near you yet.</p>
-  {% endif %}
+    {% else %}
+        <p class="text-center mt-5">No trending movies found near you yet.</p>
+    {% endif %}
 </div>
 {% endblock %}
