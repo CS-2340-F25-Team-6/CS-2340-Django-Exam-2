@@ -16,5 +16,4 @@ uv sync
 uv run manage.py runserver
 
 ## Links
-https://youtu.be/i6V555BGPzU
-https://linkenny917.wixsite.com/kenny-cs-2340-portfo
+https://youtu.be/8RUBGSZ7uyk
